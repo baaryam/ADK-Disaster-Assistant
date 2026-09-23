@@ -5,6 +5,7 @@ Run from the project folder ADK_Disaster_Assistant:
 or, without pytest:
     python tests/test_tools.py
 """
+# test tools
 
 import sys
 from pathlib import Path
