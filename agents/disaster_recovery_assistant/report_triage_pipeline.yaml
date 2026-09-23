@@ -1,0 +1,10 @@
+name: report_triage_pipeline
+agent_class: SequentialAgent
+description: Sequential workflow for a reported problem. Runs intake, then
+  deterministic classification, then incident lookup, then safety response, in
+  that order, because each stage needs the previous stage's result.
+sub_agents:
+  - config_path: ./intake_agent.yaml
+  - config_path: ./classification_agent.yaml
+  - config_path: ./incident_lookup_agent.yaml
+  - config_path: ./safety_response_agent.yaml

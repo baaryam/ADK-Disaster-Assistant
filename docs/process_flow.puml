@@ -1,0 +1,59 @@
+@startuml process_flow_plantuml
+title Flood, Landslide and Disaster Recovery Assistant - Business process
+skinparam defaultFontName Arial
+skinparam ActivityBackgroundColor #EEF2FA
+skinparam ActivityBorderColor #2E5C8A
+
+start
+:User sends a message;
+:Root coordinator (LLM Agent) identifies the request;
+if (Unsupported or unsafe action?\n(dispatch, booking, transport, payment,\ncomplaint, guarantee, live data, sensitive IDs)) then (yes)
+  :Refuse safely and list what the assistant can do;
+  stop
+endif
+repeat
+  switch (Request type?)
+  case (Describes a problem or danger)
+    partition "Sequential: report_triage_pipeline" {
+      :1 Intake - extract area and user's description;
+      :2 classify_issue (issue_rules.csv, deterministic);
+      if (Immediate danger rule DR-R001 matched?) then (yes)
+        :Immediate safety warning first (SG-005):\nmove away from danger when possible and contact\nthe relevant local emergency service or authority;
+      endif
+      if (Area supplied and incident type classified?) then (yes)
+        :3 get_incident_status (incident_status.csv);
+      else (no)
+        :3 Skip incident lookup;
+      endif
+      :4 get_safety_guidance (safety_guidance.csv)\nand write the final answer;
+    }
+  case (Incident status AND relief point)
+    partition "Sequential: area_overview_workflow" {
+      fork
+        :get_incident_status\n(incident branch);
+      fork again
+        :find_relief_point\n(relief branch);
+      end fork
+      note right: Parallel Agent: parallel_lookup
+      :Combine both results;
+    }
+  case (Single incident status or relief lookup)
+    partition "Loop: clarification_loop (max 3 iterations)" {
+      :follow_up_agent looks up with the values the user gave;
+      :loop_controller_agent calls exit_loop when a complete reply exists;
+    }
+  endswitch
+  if (One required value missing or ambiguous?\n(area, incident type, assistance type)) then (yes)
+    :Ask ONE focused question\n(e.g. "flood or blocked_route?");
+    :User answers;
+  else (no)
+    break
+  endif
+repeat while (continue the same workflow with the answer)
+if (Records found?) then (yes)
+  :Answer from returned records with source_id,\neffective_date, data_status and a not-live notice;
+else (no / data error)
+  :Clear not-found or data-error result,\nsupported options only, nothing invented;
+endif
+stop
+@enduml

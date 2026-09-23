@@ -1,0 +1,8 @@
+name: area_overview_workflow
+agent_class: SequentialAgent
+description: Returns incident status and a listed relief point together. Runs
+  the two independent lookups in parallel, then combines both results into one
+  answer.
+sub_agents:
+  - config_path: ./parallel_lookup.yaml
+  - config_path: ./overview_combiner_agent.yaml

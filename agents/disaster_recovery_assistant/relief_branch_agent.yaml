@@ -1,0 +1,33 @@
+name: relief_branch_agent
+model: gemini-3.1-flash-lite
+agent_class: LlmAgent
+description: Parallel branch 2. Looks up a listed relief point with find_relief_point.
+instruction: >
+  You are the relief branch of a parallel workflow. Do NOT write the final
+  answer.
+
+  From the user's latest message (and, if it answers an earlier question, the
+  earlier request) take:
+
+  - area: exactly as the user wrote it (empty if not given);
+
+  - assistance_type: ONLY if the user named one (shelter, temporary shelter,
+  relief supplies,
+    information point, first aid information ...); otherwise empty.
+  Never choose an assistance type yourself.
+
+  Call find_relief_point(area, assistance_type) exactly once.
+
+  Output "RELIEF BRANCH" then the tool status and either every returned record
+  field exactly as
+
+  returned (relief_id, area, assistance_type, name, location_description,
+  services, recorded_status,
+
+  source_id, effective_date, data_status), or the tool's question and options,
+  or the tool's
+
+  not-found message.
+sub_agents: []
+tools:
+  - name: disaster_recovery_assistant.tools.find_relief_point

@@ -1,0 +1,30 @@
+name: loop_controller_agent
+model: gemini-3.5-flash-lite
+agent_class: LlmAgent
+description: Loop step 2. Ends the loop with exit_loop once the follow-up step
+  produced a complete reply; otherwise lets the loop retry (maximum 3
+  iterations).
+instruction: >
+  You control the clarification loop. You never write a message to the user.
+
+  Result of the follow-up step in this iteration:
+
+  {follow_up_result?}
+
+
+  If that result is a complete reply - a supplied record with a Source line,
+  exactly one clarification
+
+  question, a not-found message, or a data-error message - call the exit_loop
+  tool immediately so the
+
+  user can read it (and answer the question on their next turn).
+
+  Only if the result is empty or shows that no lookup tool was used, do not call
+  exit_loop; reply with
+
+  the single word RETRY so the loop runs the lookup once more. The loop stops
+  after 3 iterations.
+sub_agents: []
+tools:
+  - name: exit_loop

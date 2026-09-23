@@ -1,0 +1,35 @@
+flowchart TD
+    ROOT["disaster_recovery_coordinator<br/><b>LLM Agent (root)</b>"]
+    ROOT --> SEQ["report_triage_pipeline<br/><b>Sequential Agent</b>"]
+    ROOT --> OV["area_overview_workflow<br/><b>Sequential Agent</b>"]
+    ROOT --> LOOP["clarification_loop<br/><b>Loop Agent</b> max_iterations = 3"]
+
+    SEQ --> I1["1 intake_agent<br/>LLM"]
+    I1 --> I2["2 classification_agent<br/>LLM"]
+    I2 --> I3["3 incident_lookup_agent<br/>LLM"]
+    I3 --> I4["4 safety_response_agent<br/>LLM"]
+
+    OV --> PAR["parallel_lookup<br/><b>Parallel Agent</b>"]
+    OV --> CMB["overview_combiner_agent<br/>LLM"]
+    PAR --> B1["incident_branch_agent<br/>LLM"]
+    PAR --> B2["relief_branch_agent<br/>LLM"]
+
+    LOOP --> F1["follow_up_agent<br/>LLM"]
+    LOOP --> F2["loop_controller_agent<br/>LLM"]
+
+    I2 -.-> T1(["classify_issue"])
+    I3 -.-> T2(["get_incident_status"])
+    B1 -.-> T2
+    F1 -.-> T2
+    I4 -.-> T3(["get_safety_guidance"])
+    B2 -.-> T4(["find_relief_point"])
+    F1 -.-> T4
+    I4 -.-> T5(["get_source_metadata"])
+    CMB -.-> T5
+    F1 -.-> T5
+    F2 -.-> T6(["exit_loop (built-in)"])
+
+    classDef tool fill:#fff6e0,stroke:#c98a2c;
+    classDef wf fill:#e6eef7,stroke:#2e5c8a,stroke-width:1.5px;
+    class T1,T2,T3,T4,T5,T6 tool;
+    class SEQ,OV,PAR,LOOP wf;

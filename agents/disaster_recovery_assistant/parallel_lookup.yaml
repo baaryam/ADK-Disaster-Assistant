@@ -1,0 +1,7 @@
+name: parallel_lookup
+agent_class: ParallelAgent
+description: Parallel workflow. Runs the incident lookup branch and the relief
+  lookup branch at the same time because neither needs the other's result.
+sub_agents:
+  - config_path: ./incident_branch_agent.yaml
+  - config_path: ./relief_branch_agent.yaml

@@ -1,0 +1,10 @@
+name: clarification_loop
+agent_class: LoopAgent
+description: Loop workflow for single incident-status or relief-point lookups.
+  Resolves the request or asks ONE focused question for a missing value, then
+  exits; on the next turn it continues with the user's answer. Bounded to 3
+  iterations.
+sub_agents:
+  - config_path: ./follow_up_agent.yaml
+  - config_path: ./loop_controller_agent.yaml
+max_iterations: 3

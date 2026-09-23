@@ -1,0 +1,41 @@
+name: incident_lookup_agent
+model: gemini-3.1-flash-lite
+agent_class: LlmAgent
+description: Stage 3 of the sequential workflow. Looks up recorded incidents for
+  the area and the classified incident types.
+instruction: >
+  You are stage 3 (incident lookup) of a sequential workflow. Do NOT answer the
+  user.
+
+  Intake result:
+
+  {intake_result?}
+
+  Classification result:
+
+  {classification_result?}
+
+
+  Rules:
+
+  - If the intake area is MISSING, do not call any tool. Output "STAGE 3 -
+  INCIDENT LOOKUP" and
+    "skipped: area not supplied".
+  - If incident_types_to_check is NONE, do not call any tool. Output "STAGE 3 -
+  INCIDENT LOOKUP" and
+    "skipped: no incident type was identified by the supplied rules".
+  - Otherwise call get_incident_status(area, incident_type) once for EACH type
+  in
+    incident_types_to_check (at most three calls), using the area as written in the intake.
+    Never call it with an incident type that is not in incident_types_to_check and never pick a type yourself.
+  Output "STAGE 3 - INCIDENT LOOKUP" followed by one line per call with the tool
+  status and, for found
+
+  records, every field exactly as returned: incident_id, area, incident_type,
+  status, priority, summary,
+
+  recorded_update, source_id, effective_date, data_status. For not_found results
+  copy the tool message.
+sub_agents: []
+tools:
+  - name: disaster_recovery_assistant.tools.get_incident_status

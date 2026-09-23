@@ -1,0 +1,40 @@
+flowchart TD
+    A([User sends a message]) --> B[Root coordinator<br/>identifies the request]
+    B --> C{Unsupported or<br/>unsafe action?}
+    C -- Yes --> R[Refuse: dispatch, booking, transport,<br/>payment, complaint, guarantee, live data,<br/>sensitive IDs. List what it can do]:::endnode
+    C -- No --> D{Request type?}
+
+    D -- Describes a problem<br/>or danger --> S1[Intake:<br/>extract area and description]
+    S1 --> S2[classify_issue<br/>issue_rules.csv]
+    S2 --> S3{Immediate<br/>danger?}
+    S3 -- Yes --> S4[Immediate safety warning first<br/>SG-005: move away, contact the<br/>local emergency service or authority]
+    S3 -- No --> S5
+    S4 --> S5{Area and<br/>type known?}
+    S5 -- Yes --> S6[get_incident_status<br/>incident_status.csv]
+    S5 -- No: skip lookup --> S7
+    S7 -. area missing .-> Q
+    S6 --> S7[get_safety_guidance<br/>safety_guidance.csv]
+    S7 --> ANS
+
+    D -- Incident status AND<br/>relief point --> P0[[Parallel lookups]]
+    P0 --> P1[get_incident_status]
+    P0 --> P2[find_relief_point]
+    P1 --> P3[Combine both results]
+    P2 --> P3
+    P3 --> P4{Both<br/>resolved?}
+    P4 -- Yes --> ANS
+    P4 -- One value missing --> Q
+
+    D -- Single incident-status<br/>or relief lookup --> L1[Loop step: look up with the<br/>values the user gave]
+    L1 --> L2{Tool<br/>result}
+    L2 -- needs_clarification<br/>more than one incident or<br/>relief point, or no area --> Q
+    L2 -- found --> ANS
+    L2 -- not_found / error --> NF
+
+    S6 -. not_found .-> NF
+    Q[Ask ONE focused question<br/>e.g. flood or blocked_route?]:::endnode --> U[/User answers/]
+    U -->|continue same workflow<br/>max 3 loop iterations| D
+    ANS[Answer from returned records with<br/>source_id, effective_date, data_status<br/>and not-live notice]:::endnode
+    NF[Clear not-found or data-error result<br/>with supported options, nothing invented]:::endnode
+
+    classDef endnode fill:#e8f1e4,stroke:#3c7a2e,stroke-width:1.5px;
