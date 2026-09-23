@@ -224,3 +224,5 @@ Rules: keep the app name `disaster_recovery_assistant` visible, zoom the browser
 - **No guessing:** when an area has several incidents or relief points and the type is not given, the tool returns `needs_clarification` with one question built from the supplied values.
 - **Source fields:** every record is returned with its supplied `source_id`, `effective_date` and `data_status`, and every final answer shows them and says the records are not live.
 - **Safety boundary:** the assistant never dispatches help, never guarantees safety, never gives phone numbers and never requests NIC numbers, passwords, OTPs or payment details.
+#   A D K - D i s a s t e r - A s s i s t a n t  
+ 
